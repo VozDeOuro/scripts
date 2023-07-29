@@ -1,9 +1,19 @@
 #!/bin/bash
 
+#edit this part
+
 BEARED_TOKEN=TOKEN
 #EDIT WEBSITE AND ID
 WEBSITE_API="https://WEBSITE.com.br/api/client/servers/ID/startup/variable"
+svname="Rustinity Mars"
 
+serveridentitydir="./server/rust/"
+logfile="wipelog.txt"
+
+
+#######################################################################
+#DO NOT EDIT THIS PART 
+#######################################################################
 
 fn_edit_name_server() {
 
@@ -16,7 +26,7 @@ curl "$WEBSITE_API" \
   -X PUT \
   -d '{
     "key": "HOSTNAME",
-    "value": "[LATAM] RUSTINITY Vanilla | '$wipetype' '$datewipe'"
+    "value": "'$svname''$wipetype' '$datewipe'"
   }'
 
 echo "${GREEN} name edited"
@@ -156,8 +166,6 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 
-serveridentitydir="./server/rust/"
-logfile="wipelog.txt"
 
 if [ "$1" == "full" ]; then
     wipetype=FULLWIPE
