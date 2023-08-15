@@ -2,10 +2,12 @@
 
 #edit this part
 
-BEARED_TOKEN=TOKEN
+BEARED_TOKEN="ptlc_hash"
 #EDIT WEBSITE AND ID
-WEBSITE_API="https://WEBSITE.com.br/api/client/servers/ID/startup/variable"
-svname="Rustinity Mars"
+WEBSITE_API="https://WEBSITE.com.br"
+SERVER_ID="/api/client/servers/ID"
+#EXEMPLE="/api/client/servers/aa9808aa"
+svname="[{LATAM}] RUSTINITY Vanilla MAX 5"
 
 serveridentitydir="./server/rust/"
 logfile="wipelog.txt"
@@ -15,21 +17,50 @@ logfile="wipelog.txt"
 #DO NOT EDIT THIS PART 
 #######################################################################
 
+
+
+
+
+
+
+
+
+POWERSTATE=start
+
+fn_change_server_state() {
+
+    echo $POWERSTATE
+curl "'$WEBSITE_API''$SERVER_ID'/power" \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer '$BEARED_TOKEN'' \
+  -X POST \
+  -d '{
+    "signal": "'$POWERSTATE'"
+  }'
+
+echo -e "${GREEN} server ${POWERSTATE}"
+
+}
+
+
+
 fn_edit_name_server() {
 
 datewipe=$(date +%d/%m)
 
-curl "$WEBSITE_API" \
+curl "'$WEBSITE_API''$SERVER_ID'/startup/variable" \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
-  -H "Authorization: Bearer $BEARED_TOKEN" \
+  -H 'Authorization: Bearer '$BEARED_TOKEN'' \
   -X PUT \
   -d '{
     "key": "HOSTNAME",
-    "value": "'$svname''$wipetype' '$datewipe'"
+    "value": "'$svname' | '$wipetype' '$datewipe'"
   }'
 
 echo "${GREEN} name edited"
+
 
 }
 
@@ -41,9 +72,13 @@ fn_map_wipe_warning() {
 		totalseconds=$((totalseconds - 1))
 		sleep 1
 		if [ "${seconds}" == "0" ]; then
+            POWERSTATE=stop
+            fn_change_server_state
+            sleep 10
 			break
 		fi
 	done
+
 }
 
 fn_full_wipe_warning() {
@@ -54,6 +89,9 @@ fn_full_wipe_warning() {
 		totalseconds=$((totalseconds - 1))
 		sleep 1
 		if [ "${seconds}" == "0" ]; then
+            POWERSTATE=stop
+            fn_change_server_state
+            sleep 10
 			break
 		fi
 	done
@@ -148,14 +186,23 @@ fn_map_wipe_warning
 	fi
 datewipe=$(date +%d/%m)
 
+
+
 }
 
 fn_wipe_random_seed() {
-    seedfile=server/rust/cfg/serverauto.cfg
 	seed=$(shuf -i 1-2147483647 -n 1)
 	echo -e "generating new random seed (${CYAN}${seed})..."
-    sed -i -e '/server.seed/d' $seedfile
-    echo "server.seed $seed" >> $seedfile
+    curl "'$WEBSITE_API''$SERVER_ID'/startup/variable" \
+     -H 'Accept: application/json' \
+     -H 'Content-Type: application/json' \
+     -H 'Authorization: Bearer '$BEARED_TOKEN'' \
+     -X PUT \
+     -d '{
+        "key": "WORLD_SEED",
+        "value": "'$seed'"
+     }'
+    echo "${GREEN} seed edited"
 }
 
 
@@ -166,20 +213,25 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 WHITE='\033[0;37m'
 
-
 if [ "$1" == "full" ]; then
     wipetype=FULLWIPE
+    POWERSTATE=stop
     wipe_files
+    POWERSTATE=start
+    fn_change_server_state
 else
     if [ "$1" == "map" ]; then
         wipetype=WIPE
+        POWERSTATE=stop
         wipe_map
+        POWERSTATE=start
+        fn_change_server_state
     else
         if [ "$1" == "seed" ]; then
             fn_wipe_random_seed
         else
             echo "nothing wipped"
-            echo "commands: full, map, map"
+            echo "commands: full, map, seed"
         fi
     fi
 fi
