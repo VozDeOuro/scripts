@@ -76,44 +76,56 @@ fn_countdown(){
 }
 
 fn_run_check (){
-success=false
-    for ((i=1; i<=attempts; i++)); do
-        echo "Attempt $i"
-        fn_check_plex
-        if echo "$curl_local" | grep -q 'type="movie"' && echo "$curl_remote" | grep -q 'type="movie"'; then
-            success=true
-            break
-        fi
-        sleep $sleep_time
-    done
+internet=false
 
-    if [ "$success" = true ]; then
-        echo -e "PLEX SEEMS TO BE ${GREEN}UP${WHITE}"
-        echo -e "Sleeping for "$countdown_timer_set"m and checking aging"
-        fn_countdown
+while [ "$internet" != true ]; do
+    if ping -c 3 1.1.1.1 &> /dev/null; then
+        echo "Internet is available."
+        internet=true
     else
-        echo -e "PLEX SEEMS TO BE ${RED}DOWN${WHITE}"
-        echo -e "RESTARTING Container and Checking again"
-        docker restart $container_name
-        sleep 60
+        echo "No internet connection. Retrying in 20 seconds..."
+        sleep 20
+    fi
+done
+
+    success=false
         for ((i=1; i<=attempts; i++)); do
             echo "Attempt $i"
-            if [ "$success" = true ]; then
+            fn_check_plex
+            if echo "$curl_local" | grep -q 'type="movie"' && echo "$curl_remote" | grep -q 'type="movie"'; then
+                success=true
                 break
             fi
             sleep $sleep_time
         done
+
         if [ "$success" = true ]; then
-            echo -e "PLEX IS BACK ${GREEN}UP${WHITE}"
+            echo -e "PLEX SEEMS TO BE ${GREEN}UP${WHITE}"
             echo -e "Sleeping for "$countdown_timer_set"m and checking aging"
             fn_countdown
         else
-            echo -e "No movie found after $attempts attempts. Exiting."
-            fn_telegram_msg
-            sleep 20
-            exit 1
+            echo -e "PLEX SEEMS TO BE ${RED}DOWN${WHITE}"
+            echo -e "RESTARTING Container and Checking again"
+            docker restart $container_name
+            sleep 60
+            for ((i=1; i<=attempts; i++)); do
+                echo "Attempt $i"
+                if [ "$success" = true ]; then
+                    break
+                fi
+                sleep $sleep_time
+            done
+            if [ "$success" = true ]; then
+                echo -e "PLEX IS BACK ${GREEN}UP${WHITE}"
+                echo -e "Sleeping for "$countdown_timer_set"m and checking aging"
+                fn_countdown
+            else
+                echo -e "No movie found after $attempts attempts. Exiting."
+                fn_telegram_msg
+                sleep 20
+                exit 1
+            fi
         fi
-    fi
 }
 
         
