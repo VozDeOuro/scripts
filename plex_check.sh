@@ -101,7 +101,7 @@ done
 
         if [ "$success" = true ]; then
             echo -e "PLEX SEEMS TO BE ${GREEN}UP${WHITE}"
-            echo -e "Sleeping for "$countdown_timer_set"m and checking aging"
+            echo -e "Sleeping for "$countdown_timer_set"m and checking again"
             fn_countdown
         else
             echo -e "PLEX SEEMS TO BE ${RED}DOWN${WHITE}"
@@ -117,7 +117,7 @@ done
             done
             if [ "$success" = true ]; then
                 echo -e "PLEX IS BACK ${GREEN}UP${WHITE}"
-                echo -e "Sleeping for "$countdown_timer_set"m and checking aging"
+                echo -e "Sleeping for "$countdown_timer_set"m and checking again"
                 fn_countdown
             else
                 echo -e "No movie found after $attempts attempts. Exiting."
