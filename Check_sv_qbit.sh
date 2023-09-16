@@ -77,8 +77,12 @@ check_server_on(){
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer $PTERO_API_KEY" \
     -X GET | grep current_state)
-    ISONLINE=$(echo "$ISONLINECURL" | awk -F '"' '{print$10}')
-    #echo "$ISONLINE"
+    ISONLINE_CHECK=$(echo "$ISONLINECURL" | awk -F '"' '{print$10}')
+    if [ -n "$ISONLINE" ]; then
+    ISONLINE="$ISONLINE_CHECK"
+    else
+        ISONLINE="offline"
+    fi
 
 }
 
