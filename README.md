@@ -9,6 +9,7 @@
 - **👥 `overseerr_limit.py`**: A script that runs on your server, automatically adding request limits for all users whenever a new user is added in Overseerr.
 
 - **🔍 `lib_scan.py`**: This script scans your media library for duplicate files of the same movie or episode of a TV series. If multiple versions exist with different extensions (e.g., .mp4, .mkv), it automatically keeps the .mkv version and deletes the others. If the files have different names, the script prompts you to choose which one to keep. 📁
+- **⏹️ `limiterr.py`**: A script that monitors Plex streaming sessions and stops the stream if a user watches more than X episodes without pausing. Useful for preventing the server from streaming endlessly when someone falls asleep or leaves the TV running. Recommended limit is 4 episodes. 💤📺
 
 
 # 🎬 Radarr/Sonarr Animation Path Organizer Script
